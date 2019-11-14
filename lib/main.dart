@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lal_pay/home/welcome.dart';
+import 'package:lal_pay/home/widgets/splash_screen.dart';
 import 'package:lal_pay/home/models/mat_color.dart';
 import 'package:lal_pay/localication/application.dart';
 import 'package:lal_pay/localication/app_translations_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 Future<Null> main() async {
   runApp(new Home());
 }
@@ -76,9 +78,23 @@ class _HomeState extends State<Home>{
         // from the list (English, in this case).
         return supportedLocales.first;
       },
-      home: Welcome(),
+      home: SplashScreen(),
     );
   }
+
+  Widget _getData(BuildContext context){
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('categories').snapshots(),
+      builder: (context,snapshot){
+        if(!snapshot.hasData){
+          return SplashScreen();
+        }else{
+          return Welcome();
+        }
+      }
+    );
+  }
+
 }
 
 

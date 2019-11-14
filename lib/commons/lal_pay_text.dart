@@ -15,8 +15,8 @@ class LalPay extends StatelessWidget{
     return RichText(
       text: TextSpan(
           children: [
-            TextSpan(text:'Lal',style: TextStyle(color: HexColor(firstColor),fontWeight: FontWeight.bold,fontSize: 25)),
-            TextSpan(text: 'Pay',style: TextStyle(color: HexColor(secondColor),fontWeight: FontWeight.bold,fontSize: 25))
+            TextSpan(text:'Vote',style: TextStyle(color: HexColor(firstColor),fontWeight: FontWeight.bold,fontSize: 25)),
+            TextSpan(text: 'App',style: TextStyle(color: HexColor(secondColor),fontWeight: FontWeight.bold,fontSize: 25))
           ]
       ),
     );
