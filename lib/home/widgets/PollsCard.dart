@@ -5,6 +5,8 @@ import 'package:lal_pay/home/models/Project.dart';
 import 'package:lal_pay/home/widgets/Categories.dart';
 import 'package:lal_pay/home/widgets/VoteWidget.dart';
 import 'package:lal_pay/home/widgets/TeamWidget.dart';
+import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 class PollsCard extends StatelessWidget{
    Poll poll;
    PollsCard(this.poll);
@@ -25,7 +27,7 @@ class PollsCard extends StatelessWidget{
       stream: Firestore.instance.collection('projects').where('poll',isEqualTo: reference).snapshots(),
       builder: (context,snapshot){
         if(!snapshot.hasData)
-          return Text(reference.documentID);
+          return CircularProgressIndicator();
         return  Container(
           child: Column(
             children: <Widget>[
@@ -90,20 +92,33 @@ class PollsCard extends StatelessWidget{
                            VoteWidget(project)
                          ],
                        ),
+                       SizedBox(height: 20,),
                        Row(
                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                          children: <Widget>[
                            Text('Team name:'),
-                           TeamWidget(project)
+                           TeamWidget(project.team.documentID),
                          ],
                        ),
+                       SizedBox(height: 20,),
                        Row(
-                         mainAxisAlignment: MainAxisAlignment.end,
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                          children: <Widget>[
                            RaisedButton(
-                             color: Colors.green,
-                             child: Text('Vote',style: TextStyle(color: Colors.white),),
+                             color: Colors.deepOrange[500],
                              onPressed: (){},
+                             child: Text('Show team members',style: TextStyle(color: Colors.white),),
+                           ),
+                           Container(
+                             width: 125,
+                             child: ConstrainedBox(
+                                 constraints: BoxConstraints(minWidth: double.infinity),
+                               child: RaisedButton(
+                                   onPressed: (){},
+                                   color: Colors.green[500],
+                                   child: Text('Vote',style: TextStyle(color: Colors.white),),
+                               )
+                             ),
                            )
                          ],
                        )
@@ -115,6 +130,68 @@ class PollsCard extends StatelessWidget{
          ),
        ),
      );
+   }
+
+   handleVote(project) async{
+
+     String uniqueCode='';
+     String id='';
+     SharedPreferences preferences = await SharedPreferences.getInstance();
+     if(preferences.get("uniqueId")==null){
+       preferences.setString("uniqueId", generateCode().toString());
+       preferences.setString('id', randomString(20));
+       saveUniqueId(project,generateCode().toString(),randomString(20));
+     }else{
+       uniqueCode =await preferences.get("uniqueId");
+       id = await preferences.get('id');
+       saveUniqueId(project,uniqueCode, id);
+     }
+
+   }
+
+   saveUniqueId(Project project,String code,String id){
+     DocumentReference reference =Firestore.instance.collection('voters').document(id);
+     if(reference.documentID!=null){
+       startVoting(project, id);
+     }else{
+       Firestore.instance.collection('voters').add({
+         "id":id,
+         "uniqueId":code
+       }).then(((document)=>startVoting(project,id)));
+     }
+   }
+
+
+   startVoting(Project project,String id){
+     DocumentReference pollReference = Firestore.instance.collection('polls').document(poll.id);
+     DocumentReference projectReference = Firestore.instance.collection('projects').document(project.id);
+     DocumentReference voteRegerence = Firestore.instance.collection('voters').document(id);
+     Firestore.instance.collection('votes').add({
+       'poll':pollReference,
+       'projects':projectReference,
+       'voter':voteRegerence
+     });
+   }
+   generateCode(){
+     var rng = new Random();
+     var list = new List.generate(12, (_) => rng.nextInt(100));
+     var concatenate = StringBuffer();
+
+     list.forEach((item){
+       concatenate.write(item);
+     });
+     return concatenate;
+   }
+
+
+   String randomString(int strlen) {
+     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+     Random rnd = new Random(new DateTime.now().millisecondsSinceEpoch);
+     String result = "";
+     for (var i = 0; i < strlen; i++) {
+       result += chars[rnd.nextInt(chars.length)];
+     }
+     return result;
    }
 
    String capitalize(String s) => s[0].toUpperCase() + s.substring(1);

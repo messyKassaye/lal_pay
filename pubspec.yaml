@@ -25,6 +25,8 @@ dependencies:
     sdk: flutter
   loading: ^1.0.1
   cloud_firestore: ^0.11.0+1
+  shared_preferences: ^0.5.4+5
+  random_string: ^1.1.0
 
 
 

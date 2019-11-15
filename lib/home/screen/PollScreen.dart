@@ -48,7 +48,7 @@ class PollScreen extends StatelessWidget{
                Text('There is not registered poll by this code number',
                  style: TextStyle(color: Colors.red,fontSize: 20),
                ),
-               SizedBox(height: 15,),
+               SizedBox(height: 10,),
                FlatButton.icon(
                    onPressed: (){
                      Navigator.pushReplacement(

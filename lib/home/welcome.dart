@@ -3,6 +3,8 @@ import 'package:lal_pay/home/models/hex_color.dart';
 import 'package:lal_pay/commons/lal_pay_text.dart';
 import 'package:lal_pay/home/screen/PollScreen.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 class Welcome extends StatefulWidget{
 
   _WelcomeState createState()=>_WelcomeState();
@@ -118,10 +120,14 @@ class _WelcomeState extends State<Welcome>{
     );
   }
 
-   _handleClick() {
+   _handleClick() async{
      setState(() {
        _submitted=false;
      });
+
+     //unique code
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+
     String code = controller.text;
     Timer(Duration(seconds: 3),()=>(
         handleState(code)
@@ -137,4 +143,5 @@ class _WelcomeState extends State<Welcome>{
        MaterialPageRoute(builder: (context) => PollScreen(code)),
      );
    }
+
 }
